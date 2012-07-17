@@ -30,7 +30,7 @@ public class Tiro extends Personagem {
     private final Jogador origem;
     private RigidBodyControl controle;
     
-    public static final float VELOCIDADE=300;
+    public static final float VELOCIDADE=350;
 
 
     
