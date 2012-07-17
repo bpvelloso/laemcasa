@@ -121,9 +121,9 @@ public class Jogador extends Personagem implements ActionListener{
         if (up)    { walkDirection.addLocal(camDir); }
         if (down)  { walkDirection.addLocal(camDir.negate()); }
         controle.setWalkDirection(walkDirection);
-        cam.setLocation(controle.getPhysicsLocation());
-        this.getModelo().setLocalRotation(cam.getRotation());
-        this.getModelo().setLocalTranslation(controle.getPhysicsLocation());
+        cam.setLocation(controle.getPhysicsLocation().clone());
+        this.getModelo().setLocalRotation(cam.getRotation().clone());
+        this.getModelo().setLocalTranslation(controle.getPhysicsLocation().clone());
     }
 
     private void atira() {
