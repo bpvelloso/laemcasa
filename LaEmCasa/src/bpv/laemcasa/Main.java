@@ -66,10 +66,11 @@ import java.util.logging.Logger;
 public class Main extends SimpleApplication implements ActionListener, AplicacaoRemota, ScreenController{
     private static String host=null;
     private static Integer porta=null;
+    private static Main app;
 
     public static void main(String[] args) {
        
-        Main app = new Main();
+        app = new Main();
         
         AppSettings cfg = new AppSettings(true);
         cfg.setVSync(false);   // prevents page tearing
@@ -99,7 +100,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     
     private Spatial modeloCasa;
     private RigidBodyControl controleCenario;
-    private BulletAppState bulletAppState;
+    private static BulletAppState bulletAppState;
     private HashMap<String,Inimigo> inimigos = new HashMap<String, Inimigo>();
     private List<Movimento> listaMovimentos;
     private Nifty nifty;
@@ -192,13 +193,14 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     }
 
     
+    
    
     public static final Quaternion ROLL090  = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(0,0,1));
     public static final Quaternion YAW090   = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(0,1,0));
     public static final Quaternion PITCH090 = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(1,0,0));
     
     private void initHeroi() { 
-        heroi = new Jogador("Jogador"+Math.random(),assetManager.loadModel("Models/Nave/vadertie.j3o"), rootNode, assetManager);
+        heroi = new Jogador("Jogador"+Math.random(),assetManager.loadModel("Models/Nave/vadertie.j3o"), rootNode, assetManager, cam);
         bulletAppState.getPhysicsSpace().add(heroi.getControle());   
         heroi.setUpKeys(inputManager);
         heroi.setAssetManager(assetManager);
@@ -338,6 +340,11 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
           settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
         guiNode.attachChild(ch);
    }
+
+    public static BulletAppState getBulletAppState() {
+        return bulletAppState;
+    }
+    
     
 }
         

@@ -16,7 +16,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
-import com.jme3.material.MaterialDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
@@ -39,11 +38,13 @@ public class Jogador extends Personagem implements ActionListener{
     private Geometry mark;
     private AssetManager assetManager;
     private final Node rootNode;
+    private Camera camera;
 
 
-    public Jogador(String id, Spatial modelo, Node rootNode,AssetManager assetManager) {
+    public Jogador(String id, Spatial modelo, Node rootNode,AssetManager assetManager, Camera camera) {
         this.rootNode = rootNode;
         this.assetManager = assetManager;
+        this.camera = camera;
         this.setId(id);
         this.init(modelo);
     }
@@ -126,36 +127,40 @@ public class Jogador extends Personagem implements ActionListener{
     }
 
     private void atira() {
-        // 1. Reset results list.
-        CollisionResults results = new CollisionResults();
-        // 2. Aim the ray from cam loc to cam direction.
-        Ray ray = new Ray(this.getControle().getPhysicsLocation(), this.getControle().getViewDirection());
-        // 3. Collect intersections between Ray and alvos in results list.
-        rootNode.collideWith(ray, results);
-        // 4. Print the results
-        System.out.println("----- Collisions? " + results.size() + "-----");
-        for (int i = 0; i < results.size(); i++) {
-          // For each hit, we know distance, impact point, name of geometry.
-          float dist = results.getCollision(i).getDistance();
-          Vector3f pt = results.getCollision(i).getContactPoint();
-          String hit = results.getCollision(i).getGeometry().getName();
-          System.out.println("* Collision #" + i);
-          System.out.println("  You shot " + hit + " at " + pt + ", " + dist + " wu away.");
-        }
-        // 5. Use the results (we mark the hit object)
-        if (results.size() > 0) {
-          // The closest collision point is what was truly hit:
-          CollisionResult closest = results.getClosestCollision();
-          // Let's interact - we mark the hit with a red dot.
-          mark.setLocalTranslation(closest.getContactPoint());
-          rootNode.attachChild(mark);
-          //this.raio(controle.getPhysicsLocation(), closest.getContactPoint());
-          
-          
-        } else {
-          // No hits? Then remove the red mark.
-          rootNode.detachChild(mark);
-        }
+        
+        
+        Tiro t = new Tiro(rootNode, assetManager, this);
+        
+//        // 1. Reset results list.
+//        CollisionResults results = new CollisionResults();
+//        // 2. Aim the ray from cam loc to cam direction.
+//        Ray ray = new Ray(this.getControle().getPhysicsLocation(), this.getControle().getWalkDirection());
+//        // 3. Collect intersections between Ray and alvos in results list.
+//        rootNode.collideWith(ray, results);
+//        // 4. Print the results
+//        System.out.println("----- Collisions? " + results.size() + "-----");
+//        for (int i = 0; i < results.size(); i++) {
+//          // For each hit, we know distance, impact point, name of geometry.
+//          float dist = results.getCollision(i).getDistance();
+//          Vector3f pt = results.getCollision(i).getContactPoint();
+//          String hit = results.getCollision(i).getGeometry().getName();
+//          System.out.println("* Collision #" + i);
+//          System.out.println("  You shot " + hit + " at " + pt + ", " + dist + " wu away.");
+//        }
+//        // 5. Use the results (we mark the hit object)
+//        if (results.size() > 0) {
+//          // The closest collision point is what was truly hit:
+//          CollisionResult closest = results.getClosestCollision();
+//          // Let's interact - we mark the hit with a red dot.
+//          mark.setLocalTranslation(closest.getContactPoint());
+//          rootNode.attachChild(mark);
+//          this.raio(controle.getPhysicsLocation(), closest.getContactPoint());
+//          
+//          
+//        } else {
+//          // No hits? Then remove the red mark.
+//          rootNode.detachChild(mark);
+//        }
     }
     
     private void initMark() {
@@ -197,5 +202,9 @@ public class Jogador extends Personagem implements ActionListener{
 
     void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 }
