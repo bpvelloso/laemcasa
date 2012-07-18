@@ -5,8 +5,12 @@
 package bpv.laemcasa;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
@@ -31,7 +35,7 @@ import com.jme3.scene.shape.Sphere;
  * @author velloso
  */
 public class Jogador extends Personagem implements ActionListener{
-    private CharacterControl controle;
+    //private CharacterControl controle;
     private boolean left = false, right = false, up = false, down = false, frente = false;
     private Vector3f walkDirection = new Vector3f();
     private float velocidade=10;
@@ -53,20 +57,23 @@ public class Jogador extends Personagem implements ActionListener{
         //assetManager.loadModel("Models/Nave/vadertie.j3o")
         this.setModelo(modelo);
         
-        CapsuleCollisionShape boxShape = new CapsuleCollisionShape(7f, 7f);
-        controle = new CharacterControl(boxShape, 1000);
-        controle.setJumpSpeed(5);
-        controle.setFallSpeed(250);
-        controle.setGravity(9);
-        //naveSpacial.addControl(player);
-        controle.setSpatial(this.getModelo());
-        controle.setPhysicsLocation(new Vector3f(0, 100, 0));
+        BoxCollisionShape collisionShape = new BoxCollisionShape(new Vector3f(22.0f, 17.0f, 12.0f));
+        controle = new CharacterControl(collisionShape, 1000);
+        this.getControle().setJumpSpeed(5);
+        this.getControle().setFallSpeed(250);
+        this.getControle().setGravity(9.81f);
+        this.getControle().setSpatial(this.getModelo());
+        this.getControle().setPhysicsLocation(new Vector3f(0, 100, 0));
         
-         this.initMark();    
+        this.getModelo().addControl(this.getControle());
+        
+        this.initMark();    
     }
 
+    
+    @Override
     public CharacterControl getControle() {
-        return controle;
+        return (CharacterControl)controle;
     }
     
     
@@ -107,7 +114,7 @@ public class Jogador extends Personagem implements ActionListener{
   }
 
     private void voa() {
-        controle.jump();
+        this.getControle().jump();
     }
 
     
@@ -120,10 +127,10 @@ public class Jogador extends Personagem implements ActionListener{
         if (right) { walkDirection.addLocal(camLeft.negate()); }
         if (up)    { walkDirection.addLocal(camDir); }
         if (down)  { walkDirection.addLocal(camDir.negate()); }
-        controle.setWalkDirection(walkDirection);
-        cam.setLocation(controle.getPhysicsLocation().clone());
+        this.getControle().setWalkDirection(walkDirection);
+        cam.setLocation(this.getControle().getPhysicsLocation().clone());
         this.getModelo().setLocalRotation(cam.getRotation().clone());
-        this.getModelo().setLocalTranslation(controle.getPhysicsLocation().clone());
+        this.getModelo().setLocalTranslation(this.getControle().getPhysicsLocation().clone());
     }
 
     private void atira() {
@@ -154,7 +161,7 @@ public class Jogador extends Personagem implements ActionListener{
 //          // Let's interact - we mark the hit with a red dot.
 //          mark.setLocalTranslation(closest.getContactPoint());
 //          rootNode.attachChild(mark);
-//          this.raio(controle.getPhysicsLocation(), closest.getContactPoint());
+//          this.raio(this.getControle().getPhysicsLocation(), closest.getContactPoint());
 //          
 //          
 //        } else {

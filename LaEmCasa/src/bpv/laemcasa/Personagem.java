@@ -4,6 +4,10 @@
  */
 package bpv.laemcasa;
 
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.control.PhysicsControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 
 /**
@@ -14,6 +18,7 @@ public class Personagem {
     private String id;
 
     private Spatial modelo;
+    protected PhysicsControl controle;
     
     public Personagem(String id) {
         this.id = id;
@@ -39,4 +44,7 @@ public class Personagem {
         this.id=id;
     }
 
+    public PhysicsControl getControle(){
+        return controle;
+    }
 }

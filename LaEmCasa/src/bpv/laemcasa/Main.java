@@ -26,6 +26,8 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -175,12 +177,11 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
      
     private void initLaEmCasa() {
         modeloCasa = assetManager.loadModel("Scenes/Casa/casa.j3o");
-        //casa.setLocalTranslation(new Vector3f(0f,-150f,0f));
-        
         modeloCasa.setLocalScale(new Vector3f(20f, 20f, 20f));
         
         CollisionShape sceneShape = CollisionShapeFactory.createMeshShape((Node) modeloCasa);
         controleCenario = new RigidBodyControl(sceneShape, 0);
+        controleCenario.setGravity(Vector3f.ZERO);
         modeloCasa.addControl(controleCenario);
         rootNode.attachChild(modeloCasa);  
         
@@ -270,7 +271,6 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
             inimigo.getModelo().setLocalScale(20f);
             inimigos.put(movimento.getInimigoId(), inimigo);
             rootNode.attachChild(inimigo.getModelo());
-            //alvos.attachChild(inimigo.getModelo());
         }
         
         inimigo.getModelo().setLocalRotation(movimento.getOrientacao());

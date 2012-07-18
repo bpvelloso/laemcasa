@@ -6,6 +6,8 @@ package bpv.laemcasa;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -31,7 +33,7 @@ public class Tiro extends Personagem {
     private final Jogador origem;
     private RigidBodyControl controle;
     
-    public static final float VELOCIDADE=1;
+    public static final float VELOCIDADE=1000;
 
 
     
@@ -56,17 +58,15 @@ public class Tiro extends Personagem {
         /** Position the cannon ball  */
         this.getModelo().setLocalTranslation(origem.getControle().getPhysicsLocation().clone());
         /** Make the ball physcial with a mass > 0.0f */
-        this.controle = new RigidBodyControl(0.10f);
-        
+        this.controle = new RigidBodyControl(new BoxCollisionShape(), 0.1f);
+        //this.controle.setSpatial(this.getModelo());
         this.getModelo().addControl(controle);
         
-        Main.getBulletAppState().getPhysicsSpace().add(controle);
+        
         /** Accelerate the physcial ball to shoot it. */
-        //controle.setLinearVelocity( origem.getCamera().getDirection().clone().multLocal(Tiro.VELOCIDADE) );
-        this.getModelo().setLocalRotation(origem.getCamera().getRotation().clone().inverse());
-        Vector3f impulso = origem.getCamera().getDirection().clone().multLocal(Tiro.VELOCIDADE);
-        controle.applyImpulse( impulso, origem.getControle().getPhysicsLocation().clone() );
-        System.out.println(">>>>>>>Impulso:"+impulso);
+        controle.setLinearVelocity( origem.getControle().getWalkDirection().clone().multLocal(Tiro.VELOCIDADE) );
+        
+        Main.getBulletAppState().getPhysicsSpace().add(controle);
     }
     
 }
