@@ -134,46 +134,39 @@ public class Jogador extends Personagem implements ActionListener{
     }
 
     private void atira() {
-        
-        
-        Tiro t = new Tiro(rootNode, assetManager, this);
-        
-//        // 1. Reset results list.
-//        CollisionResults results = new CollisionResults();
-//        // 2. Aim the ray from cam loc to cam direction.
-//        Ray ray = new Ray(this.getControle().getPhysicsLocation(), this.getControle().getWalkDirection());
-//        // 3. Collect intersections between Ray and alvos in results list.
-//        rootNode.collideWith(ray, results);
-//        // 4. Print the results
-//        System.out.println("----- Collisions? " + results.size() + "-----");
-//        for (int i = 0; i < results.size(); i++) {
-//          // For each hit, we know distance, impact point, name of geometry.
-//          float dist = results.getCollision(i).getDistance();
-//          Vector3f pt = results.getCollision(i).getContactPoint();
-//          String hit = results.getCollision(i).getGeometry().getName();
-//          System.out.println("* Collision #" + i);
-//          System.out.println("  You shot " + hit + " at " + pt + ", " + dist + " wu away.");
-//        }
-//        // 5. Use the results (we mark the hit object)
-//        if (results.size() > 0) {
-//          // The closest collision point is what was truly hit:
-//          CollisionResult closest = results.getClosestCollision();
-//          // Let's interact - we mark the hit with a red dot.
-//          mark.setLocalTranslation(closest.getContactPoint());
-//          rootNode.attachChild(mark);
-//          this.raio(this.getControle().getPhysicsLocation(), closest.getContactPoint());
-//          
-//          
-//        } else {
-//          // No hits? Then remove the red mark.
-//          rootNode.detachChild(mark);
-//        }
+       
+        CollisionResults results = new CollisionResults();      
+        Ray ray = new Ray(this.getControle().getPhysicsLocation(), this.getCamera().getDirection());
+       
+        rootNode.collideWith(ray, results);
+       
+        if (results.size() > 0) {
+ 
+          CollisionResult closest = results.getClosestCollision();
+          Spatial no = closest.getGeometry();
+          
+          while(!no.equals(rootNode)){
+              if(no instanceof Inimigo){
+                  System.out.println("TIROOOOOOOOOOOOOOOOOO!!!!!!!!!! "+no);
+                  
+                  break;
+              }else{
+                  no = no.getParent();
+              }
+          }
+          
+          mark.setLocalTranslation(closest.getContactPoint());
+          rootNode.attachChild(mark);
+          
+        } else {
+          rootNode.detachChild(mark);
+        }
     }
     
     private void initMark() {
         
         Sphere sphere = new Sphere(30, 30, 5.2f);
-        mark = new Geometry("BOOM!", sphere);
+        mark = new Geometry("tiro", sphere);
         
         Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mark_mat.setColor("Color", ColorRGBA.Red);

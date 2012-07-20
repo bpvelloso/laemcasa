@@ -47,5 +47,10 @@
             <image filename="Interface/cockpit4.gif" width="100%" height="100%"/>
         </layer>
     </screen>
+    <screen id="hudAtirando" childLayout="center" controller="bpv.laemcasa.Main">
+        <layer id="cockpitAtirando"  childLayout="center" height="100%" width="100%">
+            <image filename="Interface/cockpitAtirando.png" width="100%" height="100%"/>
+        </layer>
+    </screen>
     <screen id="vazio" childLayout="center" controller="bpv.laemcasa.Main"></screen>
 </nifty>

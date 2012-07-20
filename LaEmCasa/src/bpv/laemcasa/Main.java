@@ -119,7 +119,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         }else{
             this.mostrarMenuConexao();
         }
-        cam.setFrustumFar(100000f);
+        
         this.addLuzes();
         
         this.initLaEmCasa();
@@ -128,7 +128,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         
         this.setUpComandosInterface();
         
-        this.initCrossHairs();
+        //this.initCrossHairs();
     }
 
     private void conecta(String host, int porta) {
@@ -162,6 +162,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     
     
     private void addLuzes() {
+        cam.setFrustumFar(100000f);
         /** A white, spot light source. */ 
         PointLight lamp = new PointLight();
         lamp.setPosition(new Vector3f(0f,150f,0f));
@@ -211,6 +212,9 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     private void setUpComandosInterface() {
         inputManager.addMapping("hud", new KeyTrigger(KeyInput.KEY_TAB));
         inputManager.addListener(this, "hud");
+        
+        inputManager.addMapping("hudAtira", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addListener(this, "hudAtira");
     }
     
     public void onAction(String binding, boolean isPressed, float tpf) {
@@ -219,6 +223,17 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
                 if(nifty.getCurrentScreen().getScreenId().equals("hud")){
                     nifty.gotoScreen("vazio");
                 }else{
+                    nifty.gotoScreen("hud");
+                }
+            }
+        }
+        if (binding.equals("hudAtira")) {
+            if(isPressed){
+                if(nifty.getCurrentScreen().getScreenId().equals("hud")){
+                    nifty.gotoScreen("hudAtirando");
+                }
+            }else{
+                if(nifty.getCurrentScreen().getScreenId().equals("hudAtirando")){
                     nifty.gotoScreen("hud");
                 }
             }
@@ -270,7 +285,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
             inimigo.setModelo(assetManager.loadModel("Models/Nave/vadertie.j3o"));
             inimigo.getModelo().setLocalScale(20f);
             inimigos.put(movimento.getInimigoId(), inimigo);
-            rootNode.attachChild(inimigo.getModelo());
+            rootNode.attachChild(inimigo);
         }
         
         inimigo.getModelo().setLocalRotation(movimento.getOrientacao());
