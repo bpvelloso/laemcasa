@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package bpv.laemcasa.rede;
+package bpv.laemcasa.rede.mensagens;
 
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -14,7 +14,7 @@ import com.jme3.network.serializing.Serializable;
  * @author velloso
  */
 @Serializable
-public class Movimento extends AbstractMessage {
+public class MovimentoMsg extends AbstractMessage {
     private String inimigoId;
     private Quaternion orientacao;
     private Vector3f posicao;
