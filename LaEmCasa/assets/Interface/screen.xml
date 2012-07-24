@@ -14,8 +14,12 @@
                   <panel height="35%" align="center" width="75%" childLayout="center" backgroundColor="#5555">
                       <panel childLayout="vertical"  height="25%" align="center" > 
                           <panel id="panel_mid" width="75%" align="center" childLayout="horizontal" > 
+                               <text text="Nome: " font="Interface/Fonts/Default.fnt" width="50%"/>
+                               <control id="playerId" name="textfield" text="" width="50%"/>
+                          </panel>
+                          <panel id="panel_mid" width="75%" align="center" childLayout="horizontal" > 
                                 <text text="Servidor: " font="Interface/Fonts/Default.fnt" width="50%"/>
-                                <control id="host" name="textfield" text="127.0.0.1" width="50%"/>
+                                <control id="host" name="textfield" text="10.107.6.26" width="50%"/>
                           </panel>
                           <panel id="panel_mid" width="75%" align="center" childLayout="horizontal" > 
                                <text text="Porta: " font="Interface/Fonts/Default.fnt" width="50%"/>
@@ -43,14 +47,25 @@
         </layer>
     </screen>
     <screen id="hud" childLayout="center" controller="bpv.laemcasa.Main">
-        <layer id="cockpit"  childLayout="center" height="100%" width="100%">
-            <image filename="Interface/cockpit4.gif" width="100%" height="100%"/>
+        <layer id="visaoNormal"  childLayout="center" height="100%" width="100%">
+            <image  filename="Interface/cockpit4.gif" width="100%" height="100%"/>
         </layer>
-    </screen>
-    <screen id="hudAtirando" childLayout="center" controller="bpv.laemcasa.Main">
-        <layer id="cockpitAtirando"  childLayout="center" height="100%" width="100%">
+        <layer id="visaoAtirando"  childLayout="center" height="100%" width="100%" visible="false">
             <image filename="Interface/cockpitAtirando.png" width="100%" height="100%"/>
         </layer>
+        <layer id="alvejado"  childLayout="center" height="100%" width="100%" backgroundColor="#ff0000" visible="false">    
+        </layer>
+        <layer id="placarLayer"  childLayout="vertical" height="100%" width="100%">
+            <panel   childLayout="vertical" width="40%" height="10%">
+                
+            </panel>
+            <panel childLayout="horizontal" >
+                <text id="placar" text="Placar: \n\t Jogador1: 0\n\tJogador2: 0" font="Interface/Fonts/Default.fnt" color="#ffff00" />
+            </panel>
+        </layer>
     </screen>
-    <screen id="vazio" childLayout="center" controller="bpv.laemcasa.Main"></screen>
+    <screen id="vazio" childLayout="center" controller="bpv.laemcasa.Main">
+        <layer id="alvejado"  childLayout="center" height="100%" width="100%" backgroundColor="#ff0000" visible="false">
+        </layer>
+    </screen>
 </nifty>

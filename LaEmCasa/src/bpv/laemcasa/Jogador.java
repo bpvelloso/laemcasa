@@ -4,6 +4,8 @@
  */
 package bpv.laemcasa;
 
+import bpv.laemcasa.rede.ClienteLaEmCasa;
+import bpv.laemcasa.rede.mensagens.TiroMsg;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -145,14 +147,19 @@ public class Jogador extends Personagem implements ActionListener{
           CollisionResult closest = results.getClosestCollision();
           Spatial no = closest.getGeometry();
           
+          boolean acertou=false;
           while(!no.equals(rootNode)){
               if(no instanceof Inimigo){
                   System.out.println("TIROOOOOOOOOOOOOOOOOO!!!!!!!!!! "+no);
-                  
+                  enviaTiroRemoto(((Inimigo)no).getId(), closest.getContactPoint());
+                  acertou=true;
                   break;
               }else{
                   no = no.getParent();
               }
+          }
+          if(!acertou){
+              enviaTiroRemoto("cenario", closest.getContactPoint());
           }
           
           mark.setLocalTranslation(closest.getContactPoint());
@@ -206,5 +213,15 @@ public class Jogador extends Personagem implements ActionListener{
 
     public Camera getCamera() {
         return camera;
+    }
+
+    private void enviaTiroRemoto(String alvo, Vector3f pos) {
+        TiroMsg t = new TiroMsg();
+        
+        t.setOrigemId(this.getId());
+        t.setAlvoId(alvo);
+        t.setPosicaoHit(pos);
+        
+        ClienteLaEmCasa.getInstancia().enviaTiro(t);
     }
 }

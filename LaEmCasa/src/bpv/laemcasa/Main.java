@@ -1,23 +1,18 @@
 package bpv.laemcasa;
 
 import bpv.laemcasa.rede.AplicacaoRemota;
-import bpv.laemcasa.rede.Movimento;
+import bpv.laemcasa.rede.mensagens.MovimentoMsg;
 import bpv.laemcasa.rede.ClienteLaEmCasa;
 import bpv.laemcasa.rede.LaEmCasaException;
 import bpv.laemcasa.rede.ServidorLaEmCasa;
-import com.bulletphysics.collision.shapes.ConeShape;
+import bpv.laemcasa.rede.mensagens.PlacarMsg;
+import bpv.laemcasa.rede.mensagens.TiroMsg;
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
-import com.jme3.collision.CollisionResult;
-import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
-import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -25,35 +20,22 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
-import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.RenderManager;
-import com.jme3.scene.CameraNode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Cylinder;
-import com.jme3.scene.shape.Line;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.NiftyEventSubscriber;
 import de.lessvoid.nifty.controls.Label;
 import de.lessvoid.nifty.controls.TextField;
-import de.lessvoid.nifty.controls.TextFieldChangedEvent;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.TextRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
-import java.io.IOException;
-import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,15 +86,18 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     private RigidBodyControl controleCenario;
     private static BulletAppState bulletAppState;
     private HashMap<String,Inimigo> inimigos = new HashMap<String, Inimigo>();
-    private List<Movimento> listaMovimentos;
+    private List<MovimentoMsg> listaMovimentos;
+    private List<TiroMsg> listaTiros;
     private Nifty nifty;
     private boolean conectado;
     private Jogador heroi;
+    private int impacto=0;
     
     @Override
     public void simpleInitApp() {
       
-        listaMovimentos = Collections.synchronizedList(new ArrayList<Movimento>());
+        listaMovimentos = Collections.synchronizedList(new ArrayList<MovimentoMsg>());
+        listaTiros = Collections.synchronizedList(new ArrayList<TiroMsg>());
         
         if((host!=null)&&(porta!=null)){
             this.conecta(host, porta);
@@ -228,13 +213,13 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
             }
         }
         if (binding.equals("hudAtira")) {
-            if(isPressed){
-                if(nifty.getCurrentScreen().getScreenId().equals("hud")){
-                    nifty.gotoScreen("hudAtirando");
-                }
-            }else{
-                if(nifty.getCurrentScreen().getScreenId().equals("hudAtirando")){
-                    nifty.gotoScreen("hud");
+            if(nifty.getCurrentScreen().getScreenId().equals("hud")){
+                if(isPressed){
+                    nifty.getCurrentScreen().findElementByName("visaoNormal").setVisible(false);
+                    nifty.getCurrentScreen().findElementByName("visaoAtirando").setVisible(true);   
+                }else{
+                    nifty.getCurrentScreen().findElementByName("visaoNormal").setVisible(true);
+                    nifty.getCurrentScreen().findElementByName("visaoAtirando").setVisible(false);
                 }
             }
         }
@@ -248,21 +233,38 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         enviarUpdateRemoto(heroi.getControle().getPhysicsLocation(), cam.getRotation());
     }
     
+    if(this.impacto>0){
+        Element painelAlvejado = nifty.getCurrentScreen().findElementByName("alvejado");
+        painelAlvejado.setVisible(false);
+    }else{
+        this.impacto-=1;
+    }
+    
     synchronized(listaMovimentos) {
-       
-        for(Movimento m: listaMovimentos){
+        for(MovimentoMsg m: listaMovimentos){
             if(!m.getInimigoId().equals(heroi.getId())){
                 onRemoteUpdate(m);
             }
         }
         listaMovimentos.clear();
     }
+    
+    synchronized(listaTiros) {
+        for(TiroMsg t: listaTiros){
+            if(t.getAlvoId().equals(heroi.getId())){
+                onHited(t);
+            }else{
+                plotaTiro(t);
+            }
+        }
+        listaTiros.clear();
+    }
 
     
     
   }
 
-  private Movimento movimentoAtual = new Movimento();
+  private MovimentoMsg movimentoAtual = new MovimentoMsg();
   public void enviarUpdateRemoto(Vector3f pos, Quaternion or){
       
       movimentoAtual.setInimigoId(heroi.getId());
@@ -273,11 +275,19 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
       ClienteLaEmCasa.getInstancia().envia(movimentoAtual);
   }
   
-   public void receberUpdateRemoto(Movimento movimento){
+    public void receberUpdateRemoto(MovimentoMsg movimento){
        listaMovimentos.add(movimento);
-   } 
-  
-    public void onRemoteUpdate(Movimento movimento){
+    } 
+
+    public void receberUpdateTiros(TiroMsg tiro) {
+        listaTiros.add(tiro);
+    }
+   
+    public void receberUpdatePlacar(PlacarMsg placarMsg) {
+        this.atualizaPlacar(placarMsg);
+    }
+   
+    public void onRemoteUpdate(MovimentoMsg movimento){
         Inimigo inimigo = inimigos.get(movimento.getInimigoId());
         
         if(inimigo==null){
@@ -328,6 +338,9 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         TextField hostTextField = (TextField) nifty.getCurrentScreen().findNiftyControl("host", TextField.class);
         host = hostTextField.getText();
         
+        TextField playerIdTextField = (TextField) nifty.getCurrentScreen().findNiftyControl("playerId", TextField.class);
+        String playerId = playerIdTextField.getText();
+        
         TextField portaTextField = (TextField) nifty.getCurrentScreen().findNiftyControl("porta", TextField.class);
         try{
             porta = Integer.parseInt(portaTextField.getText());
@@ -337,6 +350,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         }        
         Logger.getLogger(Main.class.getName()).log(Level.INFO,"Parametros do usuário para Conexão: {0}", host+":"+porta);
         this.conecta(host, porta);
+        heroi.setId(playerId);
     }
     
     public void quitGame() {
@@ -359,7 +373,24 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
     public static BulletAppState getBulletAppState() {
         return bulletAppState;
     }
-    
-    
+
+    private void onHited(TiroMsg t) {
+        Logger.getLogger(Main.class.getName()).log(Level.INFO,"TIRO RECEBIDO!!!! Inimigo: {0}", t.getOrigemId());
+        Element painelAlvejado = nifty.getCurrentScreen().findElementByName("alvejado");
+        painelAlvejado.setVisible(true);
+        this.impacto=5;
+    }
+
+    private void plotaTiro(TiroMsg t) {
+        Logger.getLogger(Main.class.getName()).log(Level.INFO,"Tiro recebido do servido: {0}", t);
+    }
+
+    private void atualizaPlacar(PlacarMsg placarMsg) {
+        Logger.getLogger(Main.class.getName()).log(Level.INFO,"Atualizando Placar: {0}", placarMsg);
+        Element placarText = nifty.getCurrentScreen().findElementByName("placar");
+        placarText.getRenderer(TextRenderer.class).setText(placarMsg.toString());
+        
+    }
+
 }
         
