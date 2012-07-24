@@ -350,7 +350,9 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         }        
         Logger.getLogger(Main.class.getName()).log(Level.INFO,"Parametros do usuário para Conexão: {0}", host+":"+porta);
         this.conecta(host, porta);
-        heroi.setId(playerId);
+        if(!playerId.equals("")){
+            heroi.setId(playerId);
+        }
     }
     
     public void quitGame() {
@@ -379,6 +381,7 @@ public class Main extends SimpleApplication implements ActionListener, Aplicacao
         Element painelAlvejado = nifty.getCurrentScreen().findElementByName("alvejado");
         painelAlvejado.setVisible(true);
         this.impacto=5;
+        heroi.levarDano();
     }
 
     private void plotaTiro(TiroMsg t) {

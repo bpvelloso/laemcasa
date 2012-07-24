@@ -8,11 +8,7 @@ import bpv.laemcasa.rede.ClienteLaEmCasa;
 import bpv.laemcasa.rede.mensagens.TiroMsg;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
@@ -37,6 +33,7 @@ import com.jme3.scene.shape.Sphere;
  * @author velloso
  */
 public class Jogador extends Personagem implements ActionListener{
+    private static final Integer ENERGIA_INICIAL=3;
     //private CharacterControl controle;
     private boolean left = false, right = false, up = false, down = false, frente = false;
     private Vector3f walkDirection = new Vector3f();
@@ -45,6 +42,7 @@ public class Jogador extends Personagem implements ActionListener{
     private AssetManager assetManager;
     private final Node rootNode;
     private Camera camera;
+    private Integer energia = Jogador.ENERGIA_INICIAL;
 
 
     public Jogador(String id, Spatial modelo, Node rootNode,AssetManager assetManager, Camera camera) {
@@ -223,5 +221,13 @@ public class Jogador extends Personagem implements ActionListener{
         t.setPosicaoHit(pos);
         
         ClienteLaEmCasa.getInstancia().enviaTiro(t);
+    }
+
+    void levarDano() {
+        this.energia-=1;
+        if(energia==0){
+            energia=Jogador.ENERGIA_INICIAL;
+            getControle().setPhysicsLocation(new Vector3f(0, 100, 0));
+        }
     }
 }
